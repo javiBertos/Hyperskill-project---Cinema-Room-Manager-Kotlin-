@@ -22,13 +22,15 @@ class Cinema {
     private var roomSeats: Int = rows * seatsPerRow
     private val seatPrice: Int = 10
     private val seatPriceReduced: Int = 8
-    private val booked: List<List<Int>> = emptyList()
+    private val booked: MutableList<List<Int>> = mutableListOf()
+    private val seatFree: Char = 'S'
+    private val seatBooked: Char = 'B'
 
     private fun getCellContent(row: Int, seat: Int): Char {
         return when {
             row > 0 && seat == 0 -> row.toString().first()
             row == 0 && seat > 0 -> seat.toString().first()
-            row > 0 && seat > 0 -> if (listOf(row, seat) in booked) 'X' else 'S'
+            row > 0 && seat > 0 -> if (listOf(row, seat) in booked) this.seatBooked else this.seatFree
             else -> ' '
         }
     }
@@ -52,16 +54,44 @@ class Cinema {
         this.seatsPerRow = readln().toInt()
     }
 
-    fun getMaxIncome(): Int {
-        return if (this.roomSeats <= 60) {
-            this.roomSeats * this.seatPrice
-        } else {
-            val roomExpHalf: Int = this.rows / 2
-            val roomCheapHalf: Int = this.rows - roomExpHalf
+    private fun requestSiteCords(): List<Int> {
+        println("Enter a row number:")
+        val seatRow = readln().toInt()
 
-            (roomExpHalf * this.seatsPerRow * seatPrice) +
-                    (roomCheapHalf * this.seatsPerRow * seatPriceReduced)
+        println("Enter a seat number in that row:")
+        val seatNumber = readln().toInt()
+
+        return listOf(seatRow, seatNumber)
+    }
+
+    fun bookASeat(): Int {
+        val seatLocation = this.requestSiteCords()
+
+        this.booked.add(seatLocation)
+
+        return this.getSitePrice(seatLocation.first())
+    }
+
+    private fun getSitePrice(row: Int): Int {
+        return if (this.roomSeats <= 60) {
+            this.seatPrice
+        } else {
+            if (row in 1..this.rows / 2) {
+                this.seatPrice
+            } else {
+                this.seatPriceReduced
+            }
         }
+    }
+
+    fun getMaxIncome(): Int {
+        var maxIncome: Int = 0
+
+        for (row in 1..this.rows) {
+            maxIncome += this.seatsPerRow * this.getSitePrice(row)
+        }
+
+        return maxIncome
     }
 }
 
@@ -71,6 +101,11 @@ fun main() {
 
     myCinema.customiseRoomSize()
 
-    println("Total income:")
-    println("$${myCinema.getMaxIncome()}")
+    myCinema.printRoom()
+
+    val seatCost = myCinema.bookASeat()
+
+    println("Ticket price: \$$seatCost")
+
+    myCinema.printRoom()
 }
