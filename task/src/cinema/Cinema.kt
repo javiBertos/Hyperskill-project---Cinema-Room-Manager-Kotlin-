@@ -101,11 +101,25 @@ fun main() {
 
     myCinema.customiseRoomSize()
 
-    myCinema.printRoom()
+    var userOption: Int? = null
 
-    val seatCost = myCinema.bookASeat()
+    do {
+        println(
+            """
+                
+                1. Show the seats
+                2. Buy a ticket
+                0. Exit
+                
+            """.trimIndent()
+        )
+        userOption = readln().toIntOrNull()
 
-    println("Ticket price: \$$seatCost")
-
-    myCinema.printRoom()
+        when(userOption) {
+            1 -> myCinema.printRoom()
+            2 -> println("Ticket price: \$${myCinema.bookASeat()}")
+            0 -> {}
+            else -> println("No valid option")
+        }
+    } while (userOption != 0)
 }
