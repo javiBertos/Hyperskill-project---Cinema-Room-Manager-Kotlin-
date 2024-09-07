@@ -1,0 +1,15 @@
+type: edu
+custom_name: Sold!
+files:
+  - name: src/cinema/Cinema.kt
+    visible: true
+    learner_created: false
+  - name: test/CinemaTests.java
+    visible: false
+    learner_created: false
+feedback_link: https://hyperskill.org/projects/138/stages/736/implement#comment
+status: Solved
+feedback:
+  message: Congratulations!
+  time: "Fri, 06 Sep 2024 01:54:54 UTC"
+record: 2
