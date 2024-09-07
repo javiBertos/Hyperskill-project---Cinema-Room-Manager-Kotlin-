@@ -23,6 +23,7 @@ class Cinema {
     private val seatPrice: Int = 10
     private val seatPriceReduced: Int = 8
     private val booked: MutableList<List<Int>> = mutableListOf()
+    private var bookedIncome: Int = 0
     private val seatFree: Char = 'S'
     private val seatBooked: Char = 'B'
 
@@ -61,15 +62,39 @@ class Cinema {
         println("Enter a seat number in that row:")
         val seatNumber = readln().toInt()
 
-        return listOf(seatRow, seatNumber)
+        if (seatRow < 1 || seatRow > this.rows || seatNumber < 1 || seatNumber > this.seatsPerRow) {
+            throw Exception("\nWrong input!\n")
+        }
+
+        val seatLocation = listOf(seatRow, seatNumber)
+
+        if (this.booked.indexOf(seatLocation) != -1) {
+            throw Exception("\nThat ticket has already been purchased!\n")
+        }
+
+        return seatLocation
     }
 
     fun bookASeat(): Int {
-        val seatLocation = this.requestSiteCords()
+        var seatLocation = emptyList<Int>()
+        var isValidSeat = true
+
+        do {
+            try {
+                seatLocation = this.requestSiteCords()
+                isValidSeat = true
+            } catch (e: Exception) {
+                isValidSeat = false
+                println(e.message)
+            }
+        } while (!isValidSeat)
+
+        val seatPrice = this.getSitePrice(seatLocation.first())
 
         this.booked.add(seatLocation)
+        this.bookedIncome += seatPrice
 
-        return this.getSitePrice(seatLocation.first())
+        return seatPrice
     }
 
     private fun getSitePrice(row: Int): Int {
@@ -93,6 +118,17 @@ class Cinema {
 
         return maxIncome
     }
+
+    fun showStatistics() {
+        println(
+            """
+                Number of purchased tickets: ${this.booked.size}
+                Percentage: ${"%.2f".format(this.booked.size.toDouble() / this.roomSeats.toDouble() * 100.00)}%
+                Current income: $${this.bookedIncome}
+                Total income: $${this.getMaxIncome()}
+            """.trimIndent()
+        )
+    }
 }
 
 fun main() {
@@ -109,6 +145,7 @@ fun main() {
                 
                 1. Show the seats
                 2. Buy a ticket
+                3. Statistics
                 0. Exit
                 
             """.trimIndent()
@@ -117,9 +154,10 @@ fun main() {
 
         when(userOption) {
             1 -> myCinema.printRoom()
-            2 -> println("Ticket price: \$${myCinema.bookASeat()}")
+            2 -> println("\nTicket price: \$${myCinema.bookASeat()}\n")
+            3 -> myCinema.showStatistics()
             0 -> {}
-            else -> println("No valid option")
+            else -> println("Wrong input!")
         }
     } while (userOption != 0)
 }
